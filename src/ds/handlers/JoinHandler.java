@@ -51,8 +51,9 @@ public class JoinHandler implements AbstractRequestHandler, AbstractResponseHand
 
     }
 
-    public void sendJoinOK(String address, int port) {
-        String joinOkMsg = String.format(Constants.JOINOK_FORMAT, "0", routingTable.getLocalPort());
+    //address and port of the destination node
+    public void sendJoinOK(String address, int port, int value) {
+        String joinOkMsg = String.format(Constants.JOINOK_FORMAT, value, routingTable.getLocalPort());
         joinOkMsg = String.format(Constants.MSG_FORMAT, joinOkMsg.length() + 5, joinOkMsg);
         ChannelMessage okMessage = new ChannelMessage(address, port, joinOkMsg);
         this.sendRequest(okMessage);
@@ -70,9 +71,9 @@ public class JoinHandler implements AbstractRequestHandler, AbstractResponseHand
 
     @Override
     public void handleResponse(ChannelMessage message) {
-        log.writeLog("Handling Join : " + message.getMessage()
-                + " from: " + message.getAddress()
-                + " port: " + message.getPort());
+//        log.writeLog("Handling Join : " + message.getMessage()
+//                + " from: " + message.getAddress()
+//                + " port: " + message.getPort());
 
         StringTokenizer stringToken = new StringTokenizer(message.getMessage(), " ");
 
@@ -80,17 +81,17 @@ public class JoinHandler implements AbstractRequestHandler, AbstractResponseHand
         String keyword = stringToken.nextToken().trim();
 //        log.writeLog(keyword);
         if (keyword.equals("JOIN")) {
-            log.writeLog("inside join");
+//            log.writeLog("inside join");
             String address = stringToken.nextToken().trim();
             int port = Integer.parseInt(stringToken.nextToken().trim());
             if (routingTable.isANeighbour(address, port)) {
-                log.writeLog("Already a neighbor " + routingTable.getLocalPort() + " " + port);
+//                log.writeLog("Already a neighbor " + routingTable.getLocalPort() + " " + port);
 //                System.out.println("Already a neighbor " + routingTable.getLocalPort() + " " + port);
-                this.sendJoinOK(address, port);
+                this.sendJoinOK(address, port, 0);
             } else {
-                log.writeLog("New neighbor");
+//                log.writeLog("New neighbor");
                 routingTable.addNeighbour(address, port, "username");
-                this.sendJoinOK(address, port);
+                this.sendJoinOK(address, port, 0);
             }
 
         } else if (keyword.equals("JOINOK")) {
@@ -110,11 +111,11 @@ public class JoinHandler implements AbstractRequestHandler, AbstractResponseHand
         }
 
         try {
-            TimeUnit.SECONDS.sleep(3);
+            TimeUnit.SECONDS.sleep(2);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-    }
+}
 
 
 }

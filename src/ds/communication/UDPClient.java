@@ -5,6 +5,7 @@ import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.TimeUnit;
 
 public class UDPClient extends Thread{
     private final BlockingQueue<ChannelMessage> channelOut;
@@ -20,6 +21,7 @@ public class UDPClient extends Thread{
         while (process) {
             try {
                 ChannelMessage message = channelOut.take();
+//                ChannelMessage message = channelOut.poll(100, TimeUnit.MILLISECONDS);
                 String address = message.getAddress();
                 int port = message.getPort();
                 String payload = message.getMessage();

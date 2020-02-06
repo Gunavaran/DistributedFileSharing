@@ -5,16 +5,17 @@ import java.net.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.StringTokenizer;
-import ds.Constants;
+import ds.utils.Constants;
+import ds.utils.Log;
 
 
 public class BootstrapClient {
     private DatagramSocket socket;
     private String BSServerIPAddress;
     private int BSServerPort;
+    private Log log;
 
-
-    public BootstrapClient() {
+    public BootstrapClient(Log log) {
         try {
             this.socket = new DatagramSocket();
         } catch (SocketException e) {
@@ -22,12 +23,13 @@ public class BootstrapClient {
         }
         this.BSServerIPAddress = Constants.BS_SERVER_IP;
         this.BSServerPort = Constants.BS_SERVER_PORT;
+        this.log = log;
     }
 
-    public void register(String ipAddress, int port, String username) {
+    public List<InetSocketAddress> register(String ipAddress, int port, String username) {
         String regMessage = String.format(Constants.REG_FORMAT, ipAddress, port, username);
         regMessage = String.format(Constants.MSG_FORMAT, regMessage.length() + 5, regMessage);
-        processBSResponse(sendOrReceive(regMessage));
+        return processBSResponse(sendOrReceive(regMessage));
     }
 
     public void unregister(String ipAddress, int port, String username){
@@ -44,7 +46,7 @@ public class BootstrapClient {
 
     private List<InetSocketAddress> processBSResponse(String response) {
         StringTokenizer stringToken = new StringTokenizer(response, " ");
-
+        System.out.println(response);
         String length = stringToken.nextToken();
 
         String status = stringToken.nextToken();
@@ -59,12 +61,12 @@ public class BootstrapClient {
 
         switch (nodesCount) {
             case 0:
-                System.out.println("Success. This is the first node");
+//                System.out.println("Success. This is the first node");
                 neighborNodes = new ArrayList<>();
                 break;
 
             case 1:
-                System.out.println("Success. Number of neighbor nodes = 1");
+//                System.out.println("Success. Number of neighbor nodes = 1");
 
                 neighborNodes = new ArrayList<>();
 
@@ -75,7 +77,7 @@ public class BootstrapClient {
                 break;
 
             case 2:
-                System.out.println("Success. Number of neighbor nodes = 2");
+//                System.out.println("Success. Number of neighbor nodes = 2");
 
                 neighborNodes = new ArrayList<>();
 
@@ -119,7 +121,7 @@ public class BootstrapClient {
 
         switch (code) {
             case 0:
-                System.out.println("Successfully unregistered");
+                log.writeLog("Successfully unregistered from BSServer");
                 return true;
 
             case 9999:
@@ -137,6 +139,7 @@ public class BootstrapClient {
         } catch (UnknownHostException e) {
             e.printStackTrace();
         }
+
         try {
             socket.setSoTimeout(Constants.BSSERVER_TIMEOUT);
             socket.send(sendPacket);
@@ -156,6 +159,7 @@ public class BootstrapClient {
         }
 
 //        System.out.println(receivedPacket.getAddress().getHostAddress());
+        log.writeLog(new String (buff, 0 , buff.length));
         return new String(receivedPacket.getData(), 0, receivedPacket.getLength());
 
     }

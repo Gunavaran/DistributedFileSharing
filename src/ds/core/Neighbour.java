@@ -23,6 +23,10 @@ public class Neighbour{
         return this.port;
     }
 
+    public boolean equals(String address, int port) {
+        return ((this.port == port ) & this.ip.equals(address));
+    }
+
     public void setIp(String ip) {
         this.ip = ip;
     }
@@ -31,7 +35,8 @@ public class Neighbour{
         this.port = port;
     }
 
-    public void setUsername(String username) {
-        this.username = username;
-    }
+
+//    public int getClientPort() {
+//        return clientPort;
+//    }
 }
