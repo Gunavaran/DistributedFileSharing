@@ -16,24 +16,31 @@ public class LeaveHandler implements AbstractRequestHandler, AbstractResponseHan
 
     private RoutingTable routingTable;
     private BlockingQueue<ChannelMessage> channelOut;
-    private static LeaveHandler leaveHandler;
+    //    private static LeaveHandler leaveHandler;
     private Log log;
 
-    public synchronized static LeaveHandler getInstance() {
-        if (leaveHandler == null) {
-            leaveHandler = new LeaveHandler();
-        }
-        return leaveHandler;
-    }
-
-    @Override
-    public void init(
-            RoutingTable routingTable,
-            BlockingQueue<ChannelMessage> channelOut, Log log) {
+    public LeaveHandler(RoutingTable routingTable, BlockingQueue<ChannelMessage> channelOut, Log log) {
         this.routingTable = routingTable;
         this.channelOut = channelOut;
         this.log = log;
+
     }
+
+//    public static synchronized LeaveHandler getInstance() {
+//        if (leaveHandler == null) {
+//            leaveHandler = new LeaveHandler();
+//        }
+//        return leaveHandler;
+//    }
+
+//    @Override
+//    public void init(
+//            RoutingTable routingTable,
+//            BlockingQueue<ChannelMessage> channelOut, Log log) {
+//        this.routingTable = routingTable;
+//        this.channelOut = channelOut;
+//        this.log = log;
+//    }
 
     public void sendLeave() {
 //        log.writeLog("LEAVE msg sent2");
@@ -48,11 +55,11 @@ public class LeaveHandler implements AbstractRequestHandler, AbstractResponseHan
         }
 
         log.writeLog("LEAVE msg sent");
-        try {
-            TimeUnit.SECONDS.sleep(2);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
+//        try {
+//            TimeUnit.SECONDS.sleep(2);
+//        } catch (InterruptedException e) {
+//            e.printStackTrace();
+//        }
     }
 
     //address and port of the destination node
@@ -81,7 +88,7 @@ public class LeaveHandler implements AbstractRequestHandler, AbstractResponseHan
             if (routingTable.isANeighbour(address, port)) {
                 log.writeLog("Neighbor exist");
 ////                System.out.println("Already a neighbor " + routingTable.getLocalPort() + " " + port);
-                this.routingTable.removeNeighbour(address,port);
+                this.routingTable.removeNeighbour(address, port);
                 this.sendLeaveOK(address, port, 0);
             } else {
                 log.writeLog("Neighbor does not exist");
@@ -104,11 +111,11 @@ public class LeaveHandler implements AbstractRequestHandler, AbstractResponseHan
             log.writeLog("you messed up");
         }
 
-        try {
-            TimeUnit.SECONDS.sleep(2);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
+//        try {
+//            TimeUnit.SECONDS.sleep(2);
+//        } catch (InterruptedException e) {
+//            e.printStackTrace();
+//        }
     }
 
     public void sendRequest(ChannelMessage message) {

@@ -1,24 +1,32 @@
 import ds.core.Node;
+import ds.utils.StringEncoderDecoder;
 
 import java.util.ArrayList;
 import java.util.Scanner;
+import java.util.StringTokenizer;
 
 public class main {
-    public static void main(String args[]) {
+    public static void main(String args[]) throws Exception {
         String nodeNumber, command;
         boolean loop = true;
-//        ds.core.Node node1 = new ds.core.Node("23", 43, "guna");
-//        int fileCount = node1.getFileCount();
-//        System.out.println(fileCount);
+
+//        StringBuilder fileNamesString = new StringBuilder();
+//        fileNamesString.append(StringEncoderDecoder.encode("hello") + " ");
+//        fileNamesString.append(StringEncoderDecoder.encode("world") + " ");
+//        fileNamesString.append(StringEncoderDecoder.encode("love"));
 //
-//        for(int i = 0; i< fileCount; i++){
-//            System.out.println(node1.getFileList()[i]);
-//        }
+//        StringTokenizer stringToken = new StringTokenizer(fileNamesString.toString(), " ");
+//        String fileName = StringEncoderDecoder.decode(stringToken.nextToken());
+//        System.out.println(fileName);
+//        System.out.println(fileNamesString.toString());
 
         ArrayList<Node> nodes = new ArrayList<>();
 
         nodes.add(new Node("150196" + 0));
         nodes.get(0).registerToBSServer();
+        nodes.add(new Node("150196" + 1));
+        nodes.get(1).registerToBSServer();
+
 
         /*
         commands:
@@ -28,6 +36,7 @@ public class main {
             3 - print log
             4 - exit
             5 - leave network
+            6 - search
          */
         while (loop) {
             Scanner myObj = new Scanner(System.in);  // Create a Scanner object
@@ -39,7 +48,7 @@ public class main {
             switch (command) {
                 case "0":
                     nodes.add(new Node("150196" + nodes.size()));
-                    nodes.get(nodes.size()-1).registerToBSServer();
+                    nodes.get(nodes.size() - 1).registerToBSServer();
                     break;
                 case "1":
                     selectedNode.printFileList();
@@ -56,9 +65,22 @@ public class main {
                 case "5":
                     selectedNode.leaveNetwork();
                     break;
+                case "6":
+                    System.out.println("\nEnter your search query below : ");
+                    String searchQuery = myObj.nextLine();
+
+                    if (searchQuery != null && !searchQuery.equals("")) {
+                        int results = selectedNode.doSearch(searchQuery);
+                        if (results != 0){
+                            System.out.println("\nPlease choose the file you need to download : ");
+                            String fileOption = myObj.nextLine();
+                            int option = Integer.parseInt(fileOption);
+                            selectedNode.getFile(option);
+                            break;
+                        }
+                    }
+                    break;
             }
         }
-
-
     }
 }

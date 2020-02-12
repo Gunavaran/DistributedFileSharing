@@ -1,10 +1,8 @@
 package ds.communication;
 
+import ds.core.FileManager;
 import ds.core.RoutingTable;
-import ds.handlers.AbstractResponseHandler;
-import ds.handlers.JoinHandler;
-import ds.handlers.LeaveHandler;
-import ds.handlers.ResponseHandlerFactory;
+import ds.handlers.*;
 import ds.utils.Log;
 
 import java.net.DatagramSocket;
@@ -27,11 +25,14 @@ public class MessageBroker extends Thread {
     private RoutingTable routingTable;
     private LeaveHandler leaveHandler;
     private JoinHandler joinHandler;
+    private SearchHandler searchHandler;
+    private QueryHitHandler queryHitHandler;
     private Log log;
+    private FileManager fileManager;
 
-
-    public MessageBroker(String address, int port, Log log) throws SocketException {//local server port
+    public MessageBroker(String address, int port, int ftpServerPort, Log log, FileManager fileManager) throws SocketException {//local server port
         this.log = log;
+        this.fileManager = fileManager;
         channelIn = new LinkedBlockingQueue<ChannelMessage>();
         DatagramSocket socket = null;
         try {
@@ -44,14 +45,21 @@ public class MessageBroker extends Thread {
         channelOut = new LinkedBlockingQueue<ChannelMessage>();
         this.client = new UDPClient(channelOut, new DatagramSocket());
 
-        this.routingTable = new RoutingTable(address, port, log);
+        this.routingTable = new RoutingTable(address, port, ftpServerPort, log);
 
-        this.joinHandler = JoinHandler.getInstance();
-        this.joinHandler.init(this.routingTable, this.channelOut, this.log);
+//        this.joinHandler = JoinHandler.getInstance();
+//        this.joinHandler.init(this.routingTable, this.channelOut, this.log);
+        this.joinHandler = new JoinHandler(this.routingTable, this.channelOut, this.log);
 
-        this.leaveHandler = LeaveHandler.getInstance();
-        this.leaveHandler.init(this.routingTable,this.channelOut,this.log);
+//        this.leaveHandler = LeaveHandler.getInstance();
+//        this.leaveHandler.init(this.routingTable,this.channelOut,this.log);
+        this.leaveHandler = new LeaveHandler(this.routingTable,this.channelOut,this.log);
 
+//        this.searchHandler = SearchHandler.getInstance();
+//        this.searchHandler.init(this.routingTable,this.channelOut, this.log);
+        this.searchHandler = new SearchHandler(this.routingTable,this.channelOut, this.log, this.fileManager);
+
+        this.queryHitHandler = new QueryHitHandler(this.routingTable, this.channelOut, this.log);
 
     }
 
@@ -73,7 +81,7 @@ public class MessageBroker extends Thread {
                             + " port: " + message.getPort());
 
                     AbstractResponseHandler abstractResponseHandler
-                            = ResponseHandlerFactory.getResponseHandler(message.getMessage().split(" ")[1], this,log);
+                            = this.getResponseHandler(message.getMessage().split(" ")[1]);
 
                     if (abstractResponseHandler != null) {
                         abstractResponseHandler.handleResponse(message);
@@ -84,11 +92,11 @@ public class MessageBroker extends Thread {
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
-            try {
-                TimeUnit.SECONDS.sleep(2);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
+//            try {
+//                TimeUnit.SECONDS.sleep(2);
+//            } catch (InterruptedException e) {
+//                e.printStackTrace();
+//            }
 
         }
     }
@@ -121,5 +129,66 @@ public class MessageBroker extends Thread {
 //        } catch (InterruptedException e) {
 //            e.printStackTrace();
 //        }
+    }
+
+    public void doSearch(String keyword){
+        this.searchHandler.doSearch(keyword);
+    }
+
+    public AbstractResponseHandler getResponseHandler(String keyword) {
+        switch (keyword) {
+
+            case "JOIN":
+//                AbstractResponseHandler joinHandler = JoinHandler.getInstance();
+//                joinHandler.init(messageBroker.getRoutingTable(), messageBroker.getChannelOut(), log);
+                return joinHandler;
+
+            case "JOINOK":
+//                AbstractResponseHandler joinOkHandler = JoinHandler.getInstance();
+//                joinOkHandler.init(messageBroker.getRoutingTable(), messageBroker.getChannelOut(), log);
+//                return joinOkHandler;
+                return joinHandler;
+            case "LEAVE":
+//                AbstractResponseHandler leaveHandler = LeaveHandler.getInstance();
+//                leaveHandler.init(messageBroker.getRoutingTable(), messageBroker.getChannelOut(), log);
+                return leaveHandler;
+
+            case "LEAVEOK":
+//                AbstractResponseHandler leaveOkHandler = LeaveHandler.getInstance();
+//                leaveOkHandler.init(messageBroker.getRoutingTable(), messageBroker.getChannelOut(), log);
+//                return leaveOkHandler;
+                return leaveHandler;
+            case "SER":
+//                AbstractResponseHandler searchHandler = SearchHandler.getInstance();
+//                searchHandler.init(messageBroker.getRoutingTable(), messageBroker.getChannelOut(), log);
+                return searchHandler;
+
+            case "SEROK":
+//                AbstractResponseHandler queryHitHandler = QueryHitHandler.getInstance();
+//                queryHitHandler.init(messageBroker.getRoutingTable(),
+//                        messageBroker.getChannelOut(), log);
+                return queryHitHandler;
+
+
+            default:
+                System.out.println("Unknown keyword received in Response Handler : " + keyword);
+                return null;
+        }
+    }
+
+    public LeaveHandler getLeaveHandler() {
+        return leaveHandler;
+    }
+
+    public JoinHandler getJoinHandler() {
+        return joinHandler;
+    }
+
+    public SearchHandler getSearchHandler() {
+        return searchHandler;
+    }
+
+    public QueryHitHandler getQueryHitHandler() {
+        return queryHitHandler;
     }
 }

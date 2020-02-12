@@ -4,11 +4,13 @@ public class Neighbour{
     private String ip;
     private int port;
     private String username;
+    private int clientPort;
 
-    public Neighbour(String ip, int port, String username){
+    public Neighbour(String ip, int port, String username, int clientPort){
         this.ip = ip;
         this.port = port;
         this.username = username;
+        this.clientPort = clientPort;
     }
 
     public String getIp(){
@@ -35,8 +37,7 @@ public class Neighbour{
         this.port = port;
     }
 
-
-//    public int getClientPort() {
-//        return clientPort;
-//    }
+    public int getClientPort() {
+        return clientPort;
+    }
 }

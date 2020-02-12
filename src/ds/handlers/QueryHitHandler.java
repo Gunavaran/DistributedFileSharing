@@ -15,19 +15,22 @@ public class QueryHitHandler implements AbstractResponseHandler {
 
     private RoutingTable routingTable;
     private BlockingQueue<ChannelMessage> channelOut;
-    private static QueryHitHandler queryHitHandler;
+//    private static QueryHitHandler queryHitHandler;
     private Map<String, SearchResult> searchResutls;
     private Log log;
 
-    private QueryHitHandler() {
+    public QueryHitHandler(RoutingTable routingTable, BlockingQueue<ChannelMessage> channelOut, Log log) {
+        this.routingTable = routingTable;
+        this.channelOut = channelOut;
+        this.log = log;
     }
 
-    public static synchronized QueryHitHandler getInstance() {
-        if (queryHitHandler == null) {
-            queryHitHandler = new QueryHitHandler();
-        }
-        return queryHitHandler;
-    }
+//    public static synchronized QueryHitHandler getInstance() {
+//        if (queryHitHandler == null) {
+//            queryHitHandler = new QueryHitHandler();
+//        }
+//        return queryHitHandler;
+//    }
 
     @Override
     public void handleResponse(ChannelMessage message) {
@@ -64,12 +67,12 @@ public class QueryHitHandler implements AbstractResponseHandler {
 
     }
 
-    @Override
-    public void init(RoutingTable routingTable, BlockingQueue<ChannelMessage> channelOut, Log log) {
-        this.routingTable = routingTable;
-        this.channelOut = channelOut;
-        this.log = log;
-    }
+//    @Override
+//    public void init(RoutingTable routingTable, BlockingQueue<ChannelMessage> channelOut, Log log) {
+//        this.routingTable = routingTable;
+//        this.channelOut = channelOut;
+//        this.log = log;
+//    }
 
     public void setSearchResutls(Map<String, SearchResult> searchResutls) {
         this.searchResutls = searchResutls;

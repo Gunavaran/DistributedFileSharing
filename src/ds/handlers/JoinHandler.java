@@ -12,23 +12,25 @@ import java.util.concurrent.TimeUnit;
 
 public class JoinHandler implements AbstractRequestHandler, AbstractResponseHandler {
 
-    private static JoinHandler joinHandler;
+//    private static JoinHandler joinHandler;
     private BlockingQueue<ChannelMessage> channelOut;
     private RoutingTable routingTable;
-    private boolean initiated = false;
+//    private boolean initiated = false;
     private Log log;
 
-    private JoinHandler() {
-        this.initiated = true;
+    public JoinHandler(RoutingTable routingTable, BlockingQueue<ChannelMessage> channelOut, Log log) {
+        this.routingTable = routingTable;
+        this.channelOut = channelOut;
+        this.log = log;
     }
 
-    public synchronized static JoinHandler getInstance() {
-
-        if (joinHandler == null) {
-            joinHandler = new JoinHandler();
-        }
-        return joinHandler;
-    }
+//    public static synchronized JoinHandler getInstance() {
+//
+//        if (joinHandler == null) {
+//            joinHandler = new JoinHandler();
+//        }
+//        return joinHandler;
+//    }
 
     @Override
     public void sendRequest(ChannelMessage message) {
@@ -60,14 +62,12 @@ public class JoinHandler implements AbstractRequestHandler, AbstractResponseHand
         log.writeLog("JOINOK sent to " + address + " " + port);
     }
 
-    @Override
-    public void init(
-            RoutingTable routingTable,
-            BlockingQueue<ChannelMessage> channelOut, Log log) {
-        this.routingTable = routingTable;
-        this.channelOut = channelOut;
-        this.log = log;
-    }
+//    @Override
+//    public void init(RoutingTable routingTable, BlockingQueue<ChannelMessage> channelOut, Log log) {
+//        this.routingTable = routingTable;
+//        this.channelOut = channelOut;
+//        this.log = log;
+//    }
 
     @Override
     public void handleResponse(ChannelMessage message) {
@@ -90,7 +90,7 @@ public class JoinHandler implements AbstractRequestHandler, AbstractResponseHand
                 this.sendJoinOK(address, port, 0);
             } else {
 //                log.writeLog("New neighbor");
-                routingTable.addNeighbour(address, port, "username");
+                routingTable.addNeighbour(address, port, "username", message.getPort());
                 this.sendJoinOK(address, port, 0);
             }
 
@@ -101,20 +101,21 @@ public class JoinHandler implements AbstractRequestHandler, AbstractResponseHand
 
             if (value == 0) {
                     log.writeLog("JOIN successful");
+                    routingTable.addNeighbour(message.getAddress(), port, "username", message.getPort());
             } else if (value == 9999) {
                     log.writeLog("JOIN failed");
-                routingTable.removeNeighbour(message.getAddress(), port);
+//                routingTable.removeNeighbour(message.getAddress(), port);
             }
 
         } else {
             log.writeLog("you messed up");
         }
 
-        try {
-            TimeUnit.SECONDS.sleep(2);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
+//        try {
+//            TimeUnit.SECONDS.sleep(2);
+//        } catch (InterruptedException e) {
+//            e.printStackTrace();
+//        }
 }
 
 

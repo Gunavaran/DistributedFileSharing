@@ -3,15 +3,15 @@ package ds.core;
 public class SearchResult {
     private String fileName;
     private String address;
-    private int tcpPort;
+    private int ftpPort;
     private int hops;
 //    private long timeElapsed;
 
 
-    public SearchResult(String fileName, String address, int tcpPort, int hops) {
+    public SearchResult(String fileName, String address, int ftpPort, int hops) {
         this.fileName = fileName;
         this.address = address;
-        this.tcpPort = tcpPort;
+        this.ftpPort = ftpPort;
         this.hops = hops;
     }
 
@@ -23,8 +23,8 @@ public class SearchResult {
         return address;
     }
 
-    public int getTcpPort() {
-        return tcpPort;
+    public int getFtpPort() {
+        return ftpPort;
     }
 
     public int getHops() {

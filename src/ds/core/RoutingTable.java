@@ -10,17 +10,19 @@ public class RoutingTable {
     private String localAddress;            //used by other nodes to communicate with this node
     private int localPort;                  //used by other nodes to communicate with this node
     private Log log;
+    private int ftpServerPort;
 
-    public RoutingTable(String localAddress, int localPort, Log log) {
+    public RoutingTable(String localAddress, int localPort, int ftpServerPort, Log log) {
         this.localAddress = localAddress;
         this.localPort = localPort;
+        this.ftpServerPort = ftpServerPort;
         this.neighbours = new ArrayList<Neighbour>();
         this.log = log;
     }
 
-    public synchronized int addNeighbour(String address, int port, String username) {
+    public synchronized int addNeighbour(String address, int port, String username, int clientPort) {
 
-        neighbours.add(new Neighbour(address, port, username));
+        neighbours.add(new Neighbour(address, port, username, clientPort));
 
         log.writeLog("Adding neighbour : " + address + ":" + port);
         return neighbours.size();
@@ -28,8 +30,8 @@ public class RoutingTable {
 
     public synchronized int removeNeighbour(String address, int port) {
         Neighbour toRemove = null;
-        for (Neighbour n: neighbours) {
-            if (n.equals(address,port)) {
+        for (Neighbour n : neighbours) {
+            if (n.equals(address, port)) {
                 toRemove = n;
             }
         }
@@ -51,7 +53,7 @@ public class RoutingTable {
         System.out.println("Total neighbours: " + neighbours.size());
         System.out.println("Address: " + localAddress + ":" + localPort);
         System.out.println("++++++++++++++++++++++++++");
-        for (Neighbour n :neighbours) {
+        for (Neighbour n : neighbours) {
             System.out.println(
                     "Address: " + n.getIp()
                             + " Port: " + n.getPort()
@@ -60,9 +62,9 @@ public class RoutingTable {
     }
 
     public boolean isANeighbour(String address, int port) {
-        for (Neighbour n: neighbours) {
+        for (Neighbour n : neighbours) {
             if (n.equals(address, port)) {
-                return  true;
+                return true;
             }
         }
         return false;
@@ -70,8 +72,8 @@ public class RoutingTable {
 
     public ArrayList<String> getOtherNeighbours(String address, int port) {
         ArrayList<String> list = new ArrayList<>();
-        for (Neighbour n: neighbours) {
-            if(!n.equals(address, port)) {
+        for (Neighbour n : neighbours) {
+            if (!n.equals(address, port)) {
                 list.add(n.toString());
             }
         }
@@ -88,5 +90,9 @@ public class RoutingTable {
 
     public ArrayList<Neighbour> getNeighbours() {
         return neighbours;
+    }
+
+    public int getFtpServerPort() {
+        return ftpServerPort;
     }
 }

@@ -2,6 +2,9 @@ package ds.core;
 
 import ds.communication.BootstrapClient;
 import ds.communication.MessageBroker;
+import ds.communication.ftp.FTPClient;
+import ds.communication.ftp.FTPServer;
+import ds.utils.Constants;
 import ds.utils.Log;
 import ds.utils.PropertiesFile;
 
@@ -17,13 +20,15 @@ public class Node {
     private String ip;
     private int port;
     private String username;
-    private String[] fileList;
-    private int fileCount;
     private BootstrapClient bsClient;
     private MessageBroker messageBroker;
+    private FileManager fileManager;
     private Log log;
+    private FTPServer ftpServer;
+    private SearchManager searchManager;
+    private int ftpServerPort;
 
-    public Node(String username) {
+    public Node(String username) throws Exception {
         log = new Log();
         try {
             DatagramSocket socket = new DatagramSocket();
@@ -37,27 +42,23 @@ public class Node {
 
         this.port = getFreeport();
         this.username = username;
-        this.fileCount = randomInteger(3, 5);
-        this.fileList = new String[this.fileCount];
         this.bsClient = new BootstrapClient(this.log);
-        String[] allFiles = PropertiesFile.getNodeProperty("files").split(",");
-        for (int i = 0; i < this.fileCount; i++) {
-            while (true) {
-                String temp = allFiles[randomInteger(0, allFiles.length - 1)];
-                if (!Arrays.asList(this.fileList).contains(temp)) {
-                    this.fileList[i] = temp;
-                    break;
-                }
-            }
-
-        }
+//        this.fileManager = FileManager.getInstance(this.username, this.log);
+        this.fileManager = new FileManager(this.username, this.log);
+        this.ftpServerPort = this.getFreeport();
+        this.ftpServer = new FTPServer(this.ftpServerPort, this.username);
+        Thread t = new Thread(ftpServer);
+        t.start();
 
         try {
-            this.messageBroker = new MessageBroker(ip, port, this.log);
+            this.messageBroker = new MessageBroker(this.ip, this.port, this.ftpServerPort, this.log, this.fileManager);
         } catch (SocketException e) {
             throw new RuntimeException("Message Broker creation failed");
         }
         messageBroker.start();
+
+        this.searchManager = new SearchManager(this.messageBroker);
+
         log.writeLog("Gnode initiated on IP :" + ip + " and Port :" + port + " and username :" + username);
     }
 
@@ -91,7 +92,7 @@ public class Node {
             for (InetSocketAddress neighbor : neighbors) {
                 String neighborAddress = neighbor.getAddress().toString().substring(1);
                 int neighborPort = neighbor.getPort();
-                this.messageBroker.getRoutingTable().addNeighbour(neighborAddress, neighborPort, "username");
+//                this.messageBroker.getRoutingTable().addNeighbour(neighborAddress, neighborPort, "username");
                 this.messageBroker.sendJoin(neighborAddress, neighborPort);
             }
         }
@@ -105,9 +106,20 @@ public class Node {
         bsClient.echo(this.ip, this.port, this.username);
     }
 
-    //creates a random number between min and max (including min and max)
-    private int randomInteger(int min, int max) {
-        return new Random().nextInt(max - min + 1) + min;
+
+    //destination address and FTPServerport
+    public void getFile(int fileOption) {
+        try {
+            SearchResult fileDetail = this.searchManager.getFileDetails(fileOption);
+            System.out.println("The file you requested is " + fileDetail.getFileName());
+            FTPClient ftpClient = new FTPClient(fileDetail.getAddress(), fileDetail.getFtpPort(),
+                    fileDetail.getFileName());
+
+            System.out.println("Waiting for file download...");
+            Thread.sleep(Constants.FILE_DOWNLOAD_TIMEOUT);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     public String getIp() {
@@ -122,19 +134,8 @@ public class Node {
         return username;
     }
 
-    public String[] getFileList() {
-        return fileList;
-    }
-
-    public int getFileCount() {
-        return fileCount;
-    }
-
     public void printFileList() {
-        System.out.println("Files are: ");
-        for (String file : this.fileList) {
-            System.out.print(file + " ");
-        }
+        this.fileManager.printFileList();
     }
 
     public MessageBroker getMessageBroker() {
@@ -144,5 +145,10 @@ public class Node {
     public void printlog(){
         this.log.printLog();
     }
+
+    public int doSearch(String keyword){
+        return this.searchManager.doSearch(keyword);
+    }
+
 
 }

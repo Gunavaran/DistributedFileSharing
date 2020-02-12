@@ -49,7 +49,7 @@ public class BootstrapServer {
                     String username = st.nextToken();
                     if (nodes.size() == 0) {
                         reply += "0";
-                        nodes.add(new Neighbour(ip, port, username));
+                        nodes.add(new Neighbour(ip, port, username, 1));
                     } else {
                         boolean isOkay = true;
                         for (int i=0; i<nodes.size(); i++) {
@@ -79,7 +79,7 @@ public class BootstrapServer {
                                 echo (random_1 + " " + random_2);
                                 reply += "2 " + nodes.get(random_1).getIp() + " " + nodes.get(random_1).getPort() + " " + nodes.get(random_2).getIp() + " " + nodes.get(random_2).getPort();
                             }
-                            nodes.add(new Neighbour(ip, port, username));
+                            nodes.add(new Neighbour(ip, port, username, 1));
                         }
                     }
 
