@@ -84,6 +84,10 @@ public class SearchHandler implements AbstractRequestHandler, AbstractResponseHa
         int fileNamesCount = resultSet.size();
 
         if (fileNamesCount != 0) {
+
+            if (hops == Constants.HOP_COUNT) {
+                System.out.println("File already available in the node");
+            }
             StringBuilder fileNamesString = new StringBuilder();
 
             Iterator<String> itr = resultSet.iterator();
@@ -104,6 +108,7 @@ public class SearchHandler implements AbstractRequestHandler, AbstractResponseHa
             //destination address and port
             ChannelMessage okMessage = new ChannelMessage(address, port, searchOKMessage);
             this.sendRequest(okMessage);
+
         } else if (hops > 0) {
             ArrayList<Neighbour> neighbours = this.routingTable.getNeighbours();
 

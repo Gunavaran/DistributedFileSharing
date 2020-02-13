@@ -24,9 +24,6 @@ public class main {
 
         nodes.add(new Node("150196" + 0));
         nodes.get(0).registerToBSServer();
-        nodes.add(new Node("150196" + 1));
-        nodes.get(1).registerToBSServer();
-
 
         /*
         commands:
@@ -40,47 +37,55 @@ public class main {
          */
         while (loop) {
             Scanner myObj = new Scanner(System.in);  // Create a Scanner object
-            System.out.println("Select Node: ");
-            nodeNumber = myObj.nextLine();  // Read user input
-            System.out.println("Enter Command: ");
-            command = myObj.nextLine();  // Read user input
-            Node selectedNode = nodes.get(Integer.parseInt(nodeNumber));
-            switch (command) {
-                case "0":
-                    nodes.add(new Node("150196" + nodes.size()));
-                    nodes.get(nodes.size() - 1).registerToBSServer();
-                    break;
-                case "1":
-                    selectedNode.printFileList();
-                    break;
-                case "2":
-                    selectedNode.getMessageBroker().getRoutingTable().print();
-                    break;
-                case "3":
-                    selectedNode.printlog();
-                    break;
-                case "4":
-                    loop = false;
-                    break;
-                case "5":
-                    selectedNode.leaveNetwork();
-                    break;
-                case "6":
-                    System.out.println("\nEnter your search query below : ");
-                    String searchQuery = myObj.nextLine();
+            System.out.println("new node/select node: ");
+            String input = myObj.nextLine();
+            if(input.toLowerCase().equals("n")){
+                nodes.add(new Node("150196" + nodes.size()));
+                nodes.get(nodes.size() - 1).registerToBSServer();
+            } else if (!input.equals("")){
+                System.out.println("Enter Command: ");
+                command = myObj.nextLine();
+                Node selectedNode = nodes.get(Integer.parseInt(input));
+                switch (command) {
+                    case "1":
+                        selectedNode.printFileList();
+                        break;
+                    case "2":
+                        selectedNode.getMessageBroker().getRoutingTable().print();
+                        break;
+                    case "3":
+                        selectedNode.printlog();
+                        break;
+                    case "4":
+                        loop = false;
+                        break;
+                    case "5":
+                        selectedNode.leaveNetwork();
+                        break;
+                    case "6":
+                        System.out.println("\nEnter your search query below : ");
+                        String searchQuery = myObj.nextLine();
 
-                    if (searchQuery != null && !searchQuery.equals("")) {
-                        int results = selectedNode.doSearch(searchQuery);
-                        if (results != 0){
-                            System.out.println("\nPlease choose the file you need to download : ");
-                            String fileOption = myObj.nextLine();
-                            int option = Integer.parseInt(fileOption);
-                            selectedNode.getFile(option);
-                            break;
+                        if (searchQuery != null && !searchQuery.equals("")) {
+                            int results = selectedNode.doSearch(searchQuery);
+                            if (results != 0){
+                                System.out.println("\nPlease choose the file you need to download : ");
+                                String fileOption = myObj.nextLine();
+                                if(!fileOption.equals("cancel")){
+                                    int option = Integer.parseInt(fileOption);
+                                    selectedNode.getFile(option);
+                                    break;
+                                }
+                            }
                         }
-                    }
-                    break;
+                        break;
+                    default:
+                        System.out.println("invalid command");
+                }
             }
+
+
+
         }
     }
 }

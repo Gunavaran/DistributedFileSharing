@@ -46,7 +46,7 @@ public class BootstrapClient {
 
     private List<InetSocketAddress> processBSResponse(String response) {
         StringTokenizer stringToken = new StringTokenizer(response, " ");
-        System.out.println(response);
+//        System.out.println(response);
         String length = stringToken.nextToken();
 
         String status = stringToken.nextToken();
