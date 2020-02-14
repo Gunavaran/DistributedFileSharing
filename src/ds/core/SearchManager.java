@@ -48,7 +48,7 @@ public class SearchManager {
 
     private void printSearchResults(Map<String, SearchResult> searchResults){
 
-//        System.out.println("\nFile search results : ");
+        System.out.println("\nFile search results : ");
 
         ArrayList<String> headers = new ArrayList<String>();
         headers.add("Option No");
@@ -86,7 +86,7 @@ public class SearchManager {
         }
 
         ConsoleTable ct = new ConsoleTable(headers,content);
-//        ct.printTable();
+        ct.printTable();
 
     }
 
@@ -95,7 +95,6 @@ public class SearchManager {
     }
 
     private void clearSearchResults(){
-//        QueryHitHandler queryHitHandler = QueryHitHandler.getInstance();
         QueryHitHandler queryHitHandler = messageBroker.getQueryHitHandler();
 
         queryHitHandler.setSearchResutls(null);

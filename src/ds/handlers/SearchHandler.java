@@ -76,7 +76,7 @@ public class SearchHandler implements AbstractRequestHandler, AbstractResponseHa
         if (fileNamesCount != 0) {
 
             if (hops == Constants.HOP_COUNT) {
-//                System.out.println("File already available in the node");
+                System.out.println("File already available in the node");
             }
             StringBuilder fileNamesString = new StringBuilder();
 
