@@ -15,9 +15,10 @@ public class QueryHitHandler implements AbstractResponseHandler {
 
     private RoutingTable routingTable;
     private BlockingQueue<ChannelMessage> channelOut;
-//    private static QueryHitHandler queryHitHandler;
+    //    private static QueryHitHandler queryHitHandler;
     private Map<String, SearchResult> searchResutls;
     private Log log;
+    private long searchInitiatedTime;
 
     public QueryHitHandler(RoutingTable routingTable, BlockingQueue<ChannelMessage> channelOut, Log log) {
         this.routingTable = routingTable;
@@ -50,15 +51,17 @@ public class QueryHitHandler implements AbstractResponseHandler {
 
         int hops = Integer.parseInt(stringToken.nextToken());
 
-        while(filesCount > 0){
+        while (filesCount > 0) {
 
             String fileName = StringEncoderDecoder.decode(stringToken.nextToken());
 
-            if (this.searchResutls != null){
-                if(!this.searchResutls.containsKey(addressKey + fileName)){
+            if (this.searchResutls != null) {
+                if (!this.searchResutls.containsKey(addressKey + fileName)) {
+                    long elapsedTime = System.currentTimeMillis() - searchInitiatedTime;
                     this.searchResutls.put(addressKey + fileName,
-                            new SearchResult(fileName, address, ftpPort, hops));
-
+                            new SearchResult(fileName, address, ftpPort, hops, elapsedTime));
+                    this.log.writeLatency(elapsedTime);
+                    this.log.writeHops(hops);
                 }
             }
 
@@ -77,4 +80,9 @@ public class QueryHitHandler implements AbstractResponseHandler {
     public void setSearchResutls(Map<String, SearchResult> searchResutls) {
         this.searchResutls = searchResutls;
     }
+
+    public void setSearchInitiatedTime(long currentTimeinMillis) {
+        this.searchInitiatedTime = currentTimeinMillis;
+    }
+
 }

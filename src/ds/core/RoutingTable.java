@@ -95,4 +95,8 @@ public class RoutingTable {
     public int getFtpServerPort() {
         return ftpServerPort;
     }
+
+    public int getNodeDegree(){
+        return neighbours.size();
+    }
 }

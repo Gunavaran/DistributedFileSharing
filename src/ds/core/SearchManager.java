@@ -5,6 +5,7 @@ import ds.handlers.QueryHitHandler;
 import ds.handlers.SearchHandler;
 import ds.utils.ConsoleTable;
 import ds.utils.Constants;
+import ds.utils.Log;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -14,21 +15,22 @@ public class SearchManager {
 
     private MessageBroker messageBroker;
     private Map<Integer, SearchResult> fileDownloadOptions;
+    private Log log;
 
-    public SearchManager(MessageBroker messageBroker){
+    public SearchManager(MessageBroker messageBroker, Log log){
         this.messageBroker = messageBroker;
+        this.log = log;
     }
 
     int doSearch(String query){
         Map<String, SearchResult> searchResults = new HashMap<String, SearchResult>();
-//        QueryHitHandler queryHitHandler = QueryHitHandler.getInstance();
         QueryHitHandler queryHitHandler =messageBroker.getQueryHitHandler();
-
         queryHitHandler.setSearchResutls(searchResults);
+        queryHitHandler.setSearchInitiatedTime(System.currentTimeMillis());
 
         this.messageBroker.doSearch(query);
 
-        System.out.println("Please be patient till the file results are returned ...");
+//        System.out.println("Please be patient till the file results are returned ...");
 
         try{
             Thread.sleep(Constants.SEARCH_TIMEOUT);
@@ -36,6 +38,7 @@ public class SearchManager {
         } catch (InterruptedException e){
             e.printStackTrace();
         }
+
 
         printSearchResults(searchResults);
         this.clearSearchResults();
@@ -45,13 +48,14 @@ public class SearchManager {
 
     private void printSearchResults(Map<String, SearchResult> searchResults){
 
-        System.out.println("\nFile search results : ");
+//        System.out.println("\nFile search results : ");
 
         ArrayList<String> headers = new ArrayList<String>();
         headers.add("Option No");
         headers.add("FileName");
         headers.add("Source");
         headers.add("Hop count");
+        headers.add("QueryHit time (ms)");
 
         ArrayList<ArrayList<String>> content = new ArrayList<ArrayList<String>>();
 
@@ -68,6 +72,7 @@ public class SearchManager {
             row1.add(searchResult.getFileName());
             row1.add(searchResult.getAddress() + ":" + searchResult.getFtpPort());
             row1.add("" + searchResult.getHops());
+            row1.add("" + searchResult.getTimeElapsed());
 
             content.add(row1);
 
@@ -81,7 +86,7 @@ public class SearchManager {
         }
 
         ConsoleTable ct = new ConsoleTable(headers,content);
-        ct.printTable();
+//        ct.printTable();
 
     }
 

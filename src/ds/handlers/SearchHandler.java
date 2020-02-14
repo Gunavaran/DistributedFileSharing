@@ -8,7 +8,6 @@ import ds.utils.Constants;
 import ds.utils.Log;
 import ds.utils.StringEncoderDecoder;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Set;
@@ -18,7 +17,6 @@ import java.util.concurrent.BlockingQueue;
 public class SearchHandler implements AbstractRequestHandler, AbstractResponseHandler {
 
     private Log log;
-    //    private static SearchHandler searchHandler;
     private BlockingQueue<ChannelMessage> channelOut;
     private RoutingTable routingTable;
     private FileManager fileManager;
@@ -29,14 +27,6 @@ public class SearchHandler implements AbstractRequestHandler, AbstractResponseHa
         this.channelOut = channelOut;
         this.log = log;
     }
-
-    //to ensure singleton
-//    public static synchronized SearchHandler getInstance() {
-//        if (searchHandler == null) {
-//            searchHandler = new SearchHandler();
-//        }
-//        return searchHandler;
-//    }
 
     @Override
     public void sendRequest(ChannelMessage message) {
@@ -86,7 +76,7 @@ public class SearchHandler implements AbstractRequestHandler, AbstractResponseHa
         if (fileNamesCount != 0) {
 
             if (hops == Constants.HOP_COUNT) {
-                System.out.println("File already available in the node");
+//                System.out.println("File already available in the node");
             }
             StringBuilder fileNamesString = new StringBuilder();
 
@@ -107,6 +97,7 @@ public class SearchHandler implements AbstractRequestHandler, AbstractResponseHa
 
             //destination address and port
             ChannelMessage okMessage = new ChannelMessage(address, port, searchOKMessage);
+            this.log.incrementSEARCHOK_SENT_COUNT();
             this.sendRequest(okMessage);
 
         } else if (hops > 0) {
@@ -117,6 +108,10 @@ public class SearchHandler implements AbstractRequestHandler, AbstractResponseHa
                 //skip sending search query to the same node again
                 if (neighbour.getIp().equals(message.getAddress())
                         && neighbour.getClientPort() == message.getPort()) {
+                    continue;
+                }
+
+                if(neighbour.getIp().equals(address) && neighbour.getPort() == port){
                     continue;
                 }
 
@@ -131,19 +126,12 @@ public class SearchHandler implements AbstractRequestHandler, AbstractResponseHa
                 ChannelMessage queryMessage = new ChannelMessage(neighbour.getIp(),
                         neighbour.getPort(),
                         rawMessage);
-
+                this.log.incrementQUERY_FORWARDED_COUNT();
                 this.sendRequest(queryMessage);
             }
         }
 
 
     }
-
-//    @Override
-//    public void init(RoutingTable routingTable, BlockingQueue<ChannelMessage> channelOut, Log log) {
-//        this.routingTable = routingTable;
-//        this.channelOut = channelOut;
-//        this.log = log;
-//    }
 
 }

@@ -47,17 +47,11 @@ public class MessageBroker extends Thread {
 
         this.routingTable = new RoutingTable(address, port, ftpServerPort, log);
 
-//        this.joinHandler = JoinHandler.getInstance();
-//        this.joinHandler.init(this.routingTable, this.channelOut, this.log);
         this.joinHandler = new JoinHandler(this.routingTable, this.channelOut, this.log);
 
-//        this.leaveHandler = LeaveHandler.getInstance();
-//        this.leaveHandler.init(this.routingTable,this.channelOut,this.log);
-        this.leaveHandler = new LeaveHandler(this.routingTable,this.channelOut,this.log);
+        this.leaveHandler = new LeaveHandler(this.routingTable, this.channelOut, this.log);
 
-//        this.searchHandler = SearchHandler.getInstance();
-//        this.searchHandler.init(this.routingTable,this.channelOut, this.log);
-        this.searchHandler = new SearchHandler(this.routingTable,this.channelOut, this.log, this.fileManager);
+        this.searchHandler = new SearchHandler(this.routingTable, this.channelOut, this.log, this.fileManager);
 
         this.queryHitHandler = new QueryHitHandler(this.routingTable, this.channelOut, this.log);
 
@@ -88,7 +82,7 @@ public class MessageBroker extends Thread {
                     }
 
                 }
-//                timeoutManager.checkForTimeout();
+
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
@@ -118,11 +112,11 @@ public class MessageBroker extends Thread {
         return channelOut;
     }
 
-    public void sendJoin(String address, int port){
-        this.joinHandler.sendJoin(address,port);
+    public void sendJoin(String address, int port) {
+        this.joinHandler.sendJoin(address, port);
     }
 
-    public void leave(){
+    public void leave() {
         this.leaveHandler.sendLeave();
 //        try {
 //            TimeUnit.SECONDS.sleep(2);
@@ -131,7 +125,7 @@ public class MessageBroker extends Thread {
 //        }
     }
 
-    public void doSearch(String keyword){
+    public void doSearch(String keyword) {
         this.searchHandler.doSearch(keyword);
     }
 
@@ -139,36 +133,22 @@ public class MessageBroker extends Thread {
         switch (keyword) {
 
             case "JOIN":
-//                AbstractResponseHandler joinHandler = JoinHandler.getInstance();
-//                joinHandler.init(messageBroker.getRoutingTable(), messageBroker.getChannelOut(), log);
                 return joinHandler;
 
             case "JOINOK":
-//                AbstractResponseHandler joinOkHandler = JoinHandler.getInstance();
-//                joinOkHandler.init(messageBroker.getRoutingTable(), messageBroker.getChannelOut(), log);
-//                return joinOkHandler;
                 return joinHandler;
+
             case "LEAVE":
-//                AbstractResponseHandler leaveHandler = LeaveHandler.getInstance();
-//                leaveHandler.init(messageBroker.getRoutingTable(), messageBroker.getChannelOut(), log);
                 return leaveHandler;
 
             case "LEAVEOK":
-//                AbstractResponseHandler leaveOkHandler = LeaveHandler.getInstance();
-//                leaveOkHandler.init(messageBroker.getRoutingTable(), messageBroker.getChannelOut(), log);
-//                return leaveOkHandler;
                 return leaveHandler;
             case "SER":
-//                AbstractResponseHandler searchHandler = SearchHandler.getInstance();
-//                searchHandler.init(messageBroker.getRoutingTable(), messageBroker.getChannelOut(), log);
+                this.log.increment_QUERY_RECEIVED_COUNT();
                 return searchHandler;
 
             case "SEROK":
-//                AbstractResponseHandler queryHitHandler = QueryHitHandler.getInstance();
-//                queryHitHandler.init(messageBroker.getRoutingTable(),
-//                        messageBroker.getChannelOut(), log);
                 return queryHitHandler;
-
 
             default:
                 System.out.println("Unknown keyword received in Response Handler : " + keyword);

@@ -57,7 +57,7 @@ public class Node {
         }
         messageBroker.start();
 
-        this.searchManager = new SearchManager(this.messageBroker);
+        this.searchManager = new SearchManager(this.messageBroker, this.log);
 
         log.writeLog("Gnode initiated on IP :" + ip + " and Port :" + port + " and username :" + username);
     }
@@ -150,5 +150,43 @@ public class Node {
         return this.searchManager.doSearch(keyword);
     }
 
+    public void getPerformanceStatistics(){
+        System.out.println("QUERY MESSAGES RECEIVED: " + log.getQUERY_RECEIVED_COUNT());
+        System.out.println("QUERY MESSAGES FORWARDED: " + log.getQUERY_FORWARDED_COUNT());
+        System.out.println("SEARCHOK MESSAGES SENT: " + log.getSEARCHOK_SENT_COUNT());
+    }
+
+    public int getQueryMessagesReceived(){
+        return this.log.getQUERY_RECEIVED_COUNT();
+    }
+
+    public int getQueryForwardedCount(){
+        return this.log.getQUERY_FORWARDED_COUNT();
+    }
+
+    public int getSearchOkSentCount(){
+        return this.log.getSEARCHOK_SENT_COUNT();
+    }
+
+
+    public int getNodeDegree(){
+        return this.messageBroker.getRoutingTable().getNodeDegree();
+    }
+
+    public ArrayList<Long> getLatency(){
+        return this.log.getLatency();
+    }
+
+    public ArrayList<Integer> getHops(){
+        return this.log.getHops();
+    }
+
+    public void resetLogValues(){
+        this.log.setHops(new ArrayList<>());
+        this.log.setLatency(new ArrayList<>());
+        this.log.setQUERY_FORWARDED_COUNT(0);
+        this.log.setQUERY_RECEIVED_COUNT(0);
+        this.log.setSEARCHOK_SENT_COUNT(0);
+    }
 
 }

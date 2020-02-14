@@ -61,12 +61,12 @@ public class BootstrapClient {
 
         switch (nodesCount) {
             case 0:
-//                System.out.println("Success. This is the first node");
+                System.out.println("Success. This is the first node");
                 neighborNodes = new ArrayList<>();
                 break;
 
             case 1:
-//                System.out.println("Success. Number of neighbor nodes = 1");
+                System.out.println("Success. Number of neighbor nodes = 1");
 
                 neighborNodes = new ArrayList<>();
 
@@ -77,7 +77,7 @@ public class BootstrapClient {
                 break;
 
             case 2:
-//                System.out.println("Success. Number of neighbor nodes = 2");
+                System.out.println("Success. Number of neighbor nodes = 2");
 
                 neighborNodes = new ArrayList<>();
 

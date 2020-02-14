@@ -56,8 +56,9 @@ public class FileManager {
     public void printFileList() {
         System.out.println("Files are: ");
         for (String file : this.files) {
-            System.out.print(file + " ");
+            System.out.print(file + ", ");
         }
+        System.out.println("\n");
     }
 
     public Set<String> searchForFile(String query){
